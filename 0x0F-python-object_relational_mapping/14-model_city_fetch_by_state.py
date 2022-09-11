@@ -1,12 +1,13 @@
 #!/usr/bin/python3
-"""List all State objects containing argument from db"""
+"""Displays all City obj from db"""
 import sys
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from model_state import Base, State
+from model_city import City
 
 
-def list_arg_state_obj():
+def list_city_obj():
     engine = create_engine("mysql+mysqldb://{}:{}@localhost/{}"
                            .format(sys.argv[1], sys.argv[2], sys.argv[3]),
                            pool_pre_ping=True)
@@ -14,20 +15,14 @@ def list_arg_state_obj():
 
     session = Session(engine)
 
-    rows = session.query(State).all()
-
-    res = ""
+    rows = session.query(State, City).join(City).all()
 
     for i in rows:
-        if sys.argv[4] in i.__dict__['name']:
-            res = i.__dict__['id']
-
-    if res != "":
-        print(res)
-    else:
-        print("Not Found")
+        print("{}: ({}) {}".format(i[0].__dict__['name'],
+                                   i[1].__dict__['id'],
+                                   i[1].__dict__['name']))
 
     session.close()
 
 if __name__ == "__main__":
-    list_arg_state_obj()
+    list_city_obj()
